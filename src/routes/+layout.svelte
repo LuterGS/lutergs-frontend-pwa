@@ -1,5 +1,6 @@
 <script lang="ts">
     import { pwaInfo } from 'virtual:pwa-info';
+    import { SvelteUIProvider } from "@svelteuidev/core";
 
     $: webManifest = pwaInfo ? pwaInfo.webManifest.linkTag : ''
 </script>
@@ -8,11 +9,9 @@
     {@html webManifest}
 </svelte:head>
 
-
-<main>
+<SvelteUIProvider>
     <slot />
-</main>
-
+</SvelteUIProvider>
 
 {#await import('$lib/ReloadPrompt.svelte') then { default: ReloadPrompt}}
     <ReloadPrompt />

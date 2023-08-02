@@ -4,6 +4,7 @@
 /// <reference lib="esnext" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
+import { offlineFallback } from 'workbox-recipes';
 
 declare let self: ServiceWorkerGlobalScope
 

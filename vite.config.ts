@@ -9,11 +9,14 @@ export default defineConfig({
 			allow: ['../..']
 		}
 	},
+	define: {
+		'process.env.NODE_ENV': process.env.PUBLIC_ENV === 'dev' ? '"development"' : '"production"'
+	},
 	plugins: [
 		sveltekit(),
 		SvelteKitPWA({
 			srcDir: "./src",
-			mode: "production",
+			mode: process.env.PUBLIC_ENV === "dev" ? "development" : "production",
 			strategies: "injectManifest",
 			filename: "custom-sw.ts",
 			scope: "/",

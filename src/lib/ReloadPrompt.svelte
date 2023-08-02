@@ -1,9 +1,8 @@
 <script lang="ts">
     import { useRegisterSW } from 'virtual:pwa-register/svelte';
-
-    // replaced dynamically
-    let buildDate = "20230801"
-    let reloadSW = false
+    import AnimatedNotification from "$lib/AnimatedNotification.svelte";
+    import {Space, Text} from "@svelteuidev/core";
+    import {Reload} from "radix-icons-svelte";
 
     const {
         offlineReady,
@@ -11,14 +10,7 @@
         updateServiceWorker
     } = useRegisterSW({
         onRegistered(r) {
-            if (reloadSW) {
-                r && setInterval(() => {
-                    console.log('Checking for sw update')
-                    r.update()
-                }, 20000 /* 20s for testing purposes */)
-            } else {
-                console.log(`SW Registered: ${r}`)
-            }
+            console.log(`SW Registered: ${r}`)
         },
         onRegisterError(error) {
             console.log('SW registration error', error)
@@ -29,62 +21,51 @@
         needRefresh.set(false)
     }
 
+    let offlineNotiVisible = false;
+    const triggerOfflineNotification = () => {
+        offlineNotiVisible = true;
+        close();
+        setTimeout(() => {offlineNotiVisible = false}, 2000)
+    }
+    let refreshNotiVisible = false;
+    const triggerRefreshNotification = () => {
+        updateServiceWorker(true);
+        close();
+    }
     $: toast = $offlineReady || $needRefresh
+    $: {
+       if (toast && $offlineReady) triggerOfflineNotification();
+       if (toast && $needRefresh) refreshNotiVisible = true;
+    }
 </script>
 
-{#if toast}
-    <div class="pwa-toast" role="alert">
-        <div class="message">
-            {#if $offlineReady}
-				<span>
-					App ready to work offline
-				</span>
-            {:else}
-				<span>
-					New content available, click on reload button to update.
-				</span>
-            {/if}
-        </div>
-        {#if $needRefresh}
-            <button on:click={() => updateServiceWorker(true)}>
-                Reload
-            </button>
-        {/if}
-        <button on:click={close}>
-            Close
-        </button>
-    </div>
-{/if}
+<body>
+    <!-- notification -->
+    <AnimatedNotification
+        visible={offlineNotiVisible}
+        color="blue"
+        transition={{x: "3rem", duration: 1000}}
+        --top="1rem"
+        --right="1rem"
+        --width="15rem"
+    >
+        오프라인 작동이 가능합니다.
+    </AnimatedNotification>
 
-<div class='pwa-date'>
-    { buildDate }
-</div>
+    <AnimatedNotification
+        visible={refreshNotiVisible}
+        color="cyan"
+        transition={{x: "3rem", duration: 1000}}
+        icon={Reload}
+        --top="1rem"
+        --right="1rem"
+        --width="21rem"
+        onClick={() => triggerRefreshNotification()}
+    >
+        <Text>새로운 콘텐츠 이용이 가능합니다.</Text>
+        <Space h="md"/>
+        <Text>이 알림을 눌러 업데이트해 주세요</Text>
+    </AnimatedNotification>
+</body>
 
-<style>
-    .pwa-date {
-        visibility: hidden;
-    }
-    .pwa-toast {
-        position: fixed;
-        right: 0;
-        bottom: 0;
-        margin: 16px;
-        padding: 12px;
-        border: 1px solid #8885;
-        border-radius: 4px;
-        z-index: 2;
-        text-align: left;
-        box-shadow: 3px 4px 5px 0 #8885;
-        background-color: white;
-    }
-    .pwa-toast .message {
-        margin-bottom: 8px;
-    }
-    .pwa-toast button {
-        border: 1px solid #8885;
-        outline: none;
-        margin-right: 5px;
-        border-radius: 2px;
-        padding: 3px 10px;
-    }
-</style>
+
