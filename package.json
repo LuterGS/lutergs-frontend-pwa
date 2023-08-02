@@ -2,7 +2,7 @@
 	"name": "lutergs-frontend-pwa",
 	"version": "0.0.1",
 	"scripts": {
-		"dev": "vite dev --port=4174",
+		"dev": "vite dev --port=4174 --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"build and preview": "vite build && vite preview --host",
