@@ -10,13 +10,15 @@ export default defineConfig({
 		}
 	},
 	define: {
-		'process.env.NODE_ENV': process.env.PUBLIC_ENV === 'dev' ? '"development"' : '"production"'
+		// 'process.env.NODE_ENV': process.env.PUBLIC_ENV === 'dev' ? '"development"' : '"production"'
+		'process.env.NODE_ENV': '"development"'
 	},
 	plugins: [
 		sveltekit(),
 		SvelteKitPWA({
 			srcDir: "./src",
-			mode: process.env.PUBLIC_ENV === "dev" ? "development" : "production",
+			// mode: process.env.PUBLIC_ENV === "dev" ? "development" : "production",
+			mode: "development",
 			strategies: "injectManifest",
 			filename: "custom-sw.ts",
 			scope: "/",
