@@ -1,15 +1,42 @@
 <script lang="ts">
-
     import {onMount} from "svelte";
     import {Button, Group, Space, Text} from "@svelteuidev/core";
+    import {PUBLIC_PUSH_KEY} from "$env/static/public";
+    import {sendSubscriptionToServer} from "$lib/push/PushFunctions";
 
     let lessThan400px = false;
     let status;
     // "default", "denied", "granted"
 
-    // onMount(() => {
-    //     Notification.requestPermission().then(result => status = result);
-    // })
+    onMount(async() => {
+        console.log(PUBLIC_PUSH_KEY);
+        navigator.serviceWorker.ready
+            .then(serviceWorkerRegistration => {
+                return serviceWorkerRegistration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: PUBLIC_PUSH_KEY
+                })
+            .then(subscription => {
+                return sendSubscriptionToServer(subscription)
+            })
+            .catch(exception => {
+                if (Notification.permission === 'denied') {
+                    console.log("Permission for Notification was denied");
+                    alert("Permission for Notification was denied");
+                } else {
+                    console.error("Unable to subscribe to push", exception);
+                    alert(`Unable to subscribe to push : ${exception}`)
+                }
+            })
+        })
+
+
+        const reg = await navigator.serviceWorker.ready;
+        reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: "1234"
+        })
+    })
 
     const requestPermission = async() => {
         status = await Notification.requestPermission();

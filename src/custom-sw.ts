@@ -4,7 +4,6 @@
 /// <reference lib="esnext" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
-import { offlineFallback } from 'workbox-recipes';
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -28,3 +27,12 @@ registerRoute(new NavigationRoute(
     createHandlerBoundToURL('/'),
     { allowlist },
 ))
+
+self.addEventListener('push', (e) => {
+    e.waitUntil(
+        self.registration.showNotification("New Alarm", {
+            body: e.data.text(),
+            vibrate: 1
+        })
+    )
+})
