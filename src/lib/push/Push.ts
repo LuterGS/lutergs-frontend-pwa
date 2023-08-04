@@ -16,10 +16,10 @@ export const sendSubscriptionToServer = (subscription: PushSubscription) => {
         },
         body: JSON.stringify({
             endpoint: subscription.endpoint,
-            // key: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : '',
-            // auth: auth ? btoa(String.fromCharCode.apply(null, new Uint8Array(auth))) : ''
-            key: key ? textDecoder.decode(key) : "",
-            auth: auth ? textDecoder.decode(auth) : ""
+            key: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : '',
+            auth: auth ? btoa(String.fromCharCode.apply(null, new Uint8Array(auth))) : ''
+            // key: key ? textDecoder.decode(key) : "",
+            // auth: auth ? textDecoder.decode(auth) : ""
         })
     })
 }

@@ -10,12 +10,11 @@
 
     onMount(async() => {
         console.log(PUBLIC_PUSH_KEY);
-        navigator.serviceWorker.ready
-            .then(serviceWorkerRegistration => {
+        navigator.serviceWorker.ready.then(serviceWorkerRegistration => {
                 return serviceWorkerRegistration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: PUBLIC_PUSH_KEY
-                })
+            })
             .then(subscription => {
                 return sendSubscriptionToServer(subscription)
             })
