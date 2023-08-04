@@ -2,7 +2,7 @@
     import {onMount} from "svelte";
     import {Button, Group, Space, Text} from "@svelteuidev/core";
     import {PUBLIC_PUSH_KEY} from "$env/static/public";
-    import {sendSubscriptionToServer} from "$lib/push/PushFunctions";
+    import {sendSubscriptionToServer} from "$lib/push/Push";
 
     let lessThan400px = false;
     let status;
