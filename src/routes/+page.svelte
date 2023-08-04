@@ -28,13 +28,6 @@
                 }
             })
         })
-
-
-        const reg = await navigator.serviceWorker.ready;
-        reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: "1234"
-        })
     })
 
     const requestPermission = async() => {
