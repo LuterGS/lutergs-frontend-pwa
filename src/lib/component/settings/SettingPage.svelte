@@ -1,0 +1,69 @@
+<script>
+    import {Group, Paper, Stack, Text, ActionIcon, Textarea, Loader} from "@svelteuidev/core";
+    import {Check, PaperPlane, Reload} from "radix-icons-svelte";
+    import { useRegisterSW } from 'virtual:pwa-register/svelte';
+    import {newTopicMakeRequest} from "$lib/push/PushRequests.ts";
+
+    const {
+        updateServiceWorker
+    } = useRegisterSW({
+        onRegistered(r) {
+            console.log(`SW Registered: ${r}`)
+        },
+        onRegisterError(error) {
+            console.log('SW registration error', error)
+        },
+    })
+
+    let newSubTextAreaValue = '';
+    let textAreaDisabled = false;
+    let showV = false;
+    const requestMakeNewTopic = () => {
+        textAreaDisabled = true;
+        newTopicMakeRequest(newSubTextAreaValue).then(() => {
+            textAreaDisabled = false;
+            showV = true;
+            setTimeout(() => {showV = false}, 1500)
+            newSubTextAreaValue = '';
+        });
+    }
+</script>
+
+<body>
+    <Stack spacing="sm">
+        <Paper>
+            <Group position="apart">
+                <Stack spacing="xs">
+                    <Text>서비스 워커 리프레시</Text>
+                    <Text color="gray" size="xs">UI 를 업데이트할 때 사용합니다.</Text>
+                </Stack>
+                <ActionIcon on:click={() => {updateServiceWorker(true)}}>
+                    <Reload />
+                </ActionIcon>
+            </Group>
+        </Paper>
+        <Paper>
+            <Stack>
+                <Text>새로운 Subscription 추가 문의</Text>
+                <Textarea
+                        placeholder="추가하고 싶은 Subscription 을 적어주세요."
+                        disabled={textAreaDisabled}
+                        rows={5}
+                        bind:value={newSubTextAreaValue}
+                >
+                    <svelte:fragment slot="rightSection">
+                        {#if textAreaDisabled === false && showV === false}
+                            <ActionIcon on:click={() => {requestMakeNewTopic()}}>
+                                <PaperPlane />
+                            </ActionIcon>
+                        {:else if showV === true}
+                            <Check color="green" size="sm" />
+                        {:else}
+                            <Loader color="blue" size="sm" />
+                        {/if}
+                    </svelte:fragment>
+                </Textarea>
+            </Stack>
+        </Paper>
+    </Stack>
+</body>

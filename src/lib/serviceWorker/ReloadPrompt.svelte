@@ -1,6 +1,6 @@
 <script lang="ts">
     import { useRegisterSW } from 'virtual:pwa-register/svelte';
-    import AnimatedNotification from "$lib/AnimatedNotification.svelte";
+    import AnimatedNotification from "$lib/ui/AnimatedNotification.svelte";
     import {Space, Text} from "@svelteuidev/core";
     import {Reload} from "radix-icons-svelte";
 
@@ -34,7 +34,7 @@
     }
     $: toast = $offlineReady || $needRefresh
     $: {
-       if (toast && $offlineReady) triggerOfflineNotification();
+       if (toast && $offlineReady) triggerRefreshNotification() //triggerOfflineNotification();
        if (toast && $needRefresh) refreshNotiVisible = true;
     }
 </script>

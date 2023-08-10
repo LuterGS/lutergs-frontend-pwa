@@ -1,15 +1,18 @@
 <script lang="ts">
     import {onMount} from "svelte";
-    import {Button, Group, Space, Text} from "@svelteuidev/core";
     import {PUBLIC_PUSH_KEY} from "$env/static/public";
-    import {sendSubscriptionToServer} from "$lib/push/Push";
+    import { fly } from "svelte/transition";
+    import {sendSubscriptionToServer} from "$lib/push/PushRequests";
+    import {Page, pageCurrentClicked} from "$lib/component/footer/footer.js";
+    import Header from "$lib/component/header/Header.svelte";
+    import NotiPage from "$lib/component/notification/NotiPage.svelte";
+    import SubPage from "$lib/component/subscription/SubPage.svelte";
+    import SettingPage from "$lib/component/settings/SettingPage.svelte";
+    import {pushGrantedStore} from "$lib/push/PushStore";
 
     let lessThan400px = false;
-    let status;
-    // "default", "denied", "granted"
 
     onMount(async() => {
-        console.log(PUBLIC_PUSH_KEY);
         navigator.serviceWorker.ready.then(serviceWorkerRegistration => {
                 return serviceWorkerRegistration.pushManager.subscribe({
                     userVisibleOnly: true,
@@ -28,15 +31,41 @@
                 }
             })
         })
+        pushGrantedStore.set(Notification.requestPermission());
     })
 
-    const requestPermission = async() => {
-        status = await Notification.requestPermission();
+    // UI
+    const transitions = {
+        appearLeft: {x: "-3rem", duration: 200},
+        appearRight: {x: "3rem", duration: 200},
+        disappearLeft: {x: "3rem", duration: 200},
+        disappearRight: {x: "-3rem", duration: 200}
     }
-    const testNoti = () => {
-        console.log("test");
-        new Notification("test");
+    let pageTransitionLink = {
+        noti: { t: transitions.appearLeft},
+        sub: { t: transitions.appearLeft},
+        setting: { t: transitions.appearLeft}
     }
+    let currentPage;
+    let currentTransition = { t: transitions.appearLeft};
+    pageCurrentClicked.subscribe(newPage => {
+        // set new Transition
+        let newTransition;
+        if (newPage === Page.NOTIFICATION) newTransition = pageTransitionLink.noti
+        if (newPage === Page.SUBSCRIPTION) newTransition = pageTransitionLink.sub
+        if (newPage === Page.SETTINGS) newTransition = pageTransitionLink.setting
+
+        // set transition
+        if (newPage > currentPage) {
+            currentTransition.t = transitions.disappearLeft;
+            newTransition.t = transitions.appearRight;
+        } else {
+            currentTransition.t = transitions.disappearRight;
+            newTransition.t = transitions.appearLeft;
+        }
+        currentTransition = newTransition;
+        currentPage = newPage;
+    })
 
     export let width, height;
     $: {
@@ -45,14 +74,49 @@
 </script>
 
 <body bind:clientWidth={width} bind:clientHeight={height}>
-    {#if status === "default"}
-        <h1>알림 권한을 얻어주세요.</h1>
-    {/if}
-
-    <Group position="left">
-        <Button on:click={() => requestPermission()}>알람 권한 얻기</Button>
-        <Text>{status}</Text>
-    </Group>
-    <Space h="md"/>
-    <Button on:click={() => testNoti()}>알람테스트</Button>
+    <div class="main">
+        <div class="page">
+            {#if currentPage === Page.NOTIFICATION}
+                <div transition:fly={pageTransitionLink.noti.t} class="transition">
+                    <Header />
+                    <NotiPage />
+                </div>
+            {:else if currentPage === Page.SUBSCRIPTION}
+                <div transition:fly={pageTransitionLink.sub.t} class="transition">
+                    <Header />
+                    <SubPage />
+                </div>
+            {:else if currentPage === Page.SETTINGS}
+                <div transition:fly={pageTransitionLink.setting.t} class="transition">
+                    <Header />
+                    <SettingPage />
+                </div>
+            {/if}
+        </div>
+    </div>
 </body>
+
+<style>
+    body {
+        display: flex;
+        width: 100%;
+    }
+
+    .main {
+        /*display: flex;*/
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    .page {
+        padding-top: 0.3rem;
+        height: 91%;
+        position: relative;
+    }
+
+    .transition {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+</style>

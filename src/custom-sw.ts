@@ -4,6 +4,8 @@
 /// <reference lib="esnext" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
+import {createPushAlarmFromText} from "./lib/push/PushNotification";
+import {notiHistory} from "./lib/component/notification/notiDb";
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -29,10 +31,14 @@ registerRoute(new NavigationRoute(
 ))
 
 self.addEventListener('push', (e) => {
-    e.waitUntil(
-        self.registration.showNotification("New Alarm", {
-            body: e.data.text(),
-            vibrate: 1
-        })
-    )
+    e.waitUntil(showNoti(e))
 })
+
+async function showNoti(e: PushEvent): Promise<void> {
+    const noti = createPushAlarmFromText(e.data.text())
+    notiHistory.addNotiPerTopic(noti);
+    return self.registration.showNotification(noti.title, {
+        body: noti.body
+        // icon: noti.icon ?? null
+    })
+}

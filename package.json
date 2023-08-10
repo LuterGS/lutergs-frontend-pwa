@@ -1,6 +1,6 @@
 {
 	"name": "lutergs-frontend-pwa",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"scripts": {
 		"dev": "vite dev --port=4174 --host",
 		"build": "vite build",
@@ -46,6 +46,7 @@
 		"@svelteuidev/motion": "^0.14.0",
 		"@svelteuidev/prism": "^0.14.0",
 		"dayjs": "^1.11.9",
+		"dexie": "^4.0.1-alpha.25",
 		"kolorist": "^1.8.0",
 		"radix-icons-svelte": "^1.2.1",
 		"web-push": "^3.6.4"
