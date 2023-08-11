@@ -31,22 +31,25 @@ export class SubListDexie extends Dexie {
                     return sub;
                 });
                 return this.subscription.toCollection().modify((value, ref) => {
-                    const newSub = markedAllSubs.find(s => s.uuid === value.uuid);
-                    if (newSub === undefined) {
+                    const idx = markedAllSubs.findIndex(s => s.uuid === value.uuid);
+                    if (idx === -1) {
                         delete ref.value;
                     } else {
                         ref.value = {
                             id: value.id,
                             uuid: value.uuid,
-                            name: newSub.name,
-                            description: newSub.description,
-                            isSubscribed: newSub.isSubscribed
+                            name: markedAllSubs[idx].name,
+                            description: markedAllSubs[idx].description,
+                            isSubscribed: markedAllSubs[idx].isSubscribed
                         }
+                        markedAllSubs.splice(idx, 1);
                     }
                 }).catch(err => {
                     return false;
                 }).then(res => {
-                    return true;
+                    return this.subscription.bulkPut(markedAllSubs)
+                        .catch(err => {return false})
+                        .then(res => {return true})
                 })
             } else {
                 return false;

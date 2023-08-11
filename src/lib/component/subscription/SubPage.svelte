@@ -27,9 +27,9 @@
             return res;
         }).sort((a, b) => a.id!! < b.id!! ? 1 : -1)
     })
-    // $: {
-    //     allSubscriptions = allSubscriptions
-    // }
+    $: {
+        allSubscriptions = allSubscriptions
+    }
 
     let isRefreshing = false;
     let isRefreshed = false;
@@ -38,7 +38,8 @@
     })
     const refreshTopicListByButton = () => {
         isRefreshing = true;
-        subListDb.updateAllSubs().then(() => {
+        subListDb.updateAllSubs().then((res) => {
+            console.log(res);
             isRefreshing = false;
             isRefreshed = true;
             setTimeout(() => {
