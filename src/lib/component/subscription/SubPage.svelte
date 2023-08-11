@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {Button, Group, Loader, Paper, Stack, Text, ThemeIcon} from "@svelteuidev/core";
+    import {Button, Center, Flex, Group, Loader, Paper, Stack, Text, ThemeIcon} from "@svelteuidev/core";
     import {onMount} from "svelte";
     import {Check, CheckCircled} from "radix-icons-svelte";
     import ClickablePaper from "$lib/ui/ClickablePaper.svelte";
@@ -118,7 +118,7 @@
             </ClickablePaper>
             {#each allSubscriptions as subscription}
                 <Paper override={listStackCss}>
-                    <Group position="apart">
+                    <Flex justify="space-between">
                         <Stack spacing="sm">
                             <Group position="left">
                                 <Text weight={"bold"}>{subscription.name}</Text>
@@ -130,26 +130,28 @@
                             </Group>
                             <Text>{subscription.description}</Text>
                         </Stack>
-                        {#if subscription.isSubscribed}
-                            <Button disabled={subscription.processing} override={unsubscribeButtonCss}>
-                                {#if subscription.processing === true}
-                                    <Loader color="gray" size="sm"/>
-                                {:else}
-                                    <Text color="#C13538" align="center" size="sm"
-                                          on:click={() => {unsubscribe(subscription.uuid)}}>구독 취소</Text>
-                                {/if}
-                            </Button>
-                        {:else}
-                            <Button disabled={subscription.processing} override={subscribeButtonCss}>
-                                {#if subscription.processing === true}
-                                    <Loader color="gray" size="sm"/>
-                                {:else}
-                                    <Text color="#4F5867" align="center" size="sm"
-                                          on:click={() => {subscribe(subscription.uuid)}}>구독</Text>
-                                {/if}
-                            </Button>
-                        {/if}
-                    </Group>
+                        <Center>
+                            {#if subscription.isSubscribed}
+                                <Button disabled={subscription.processing} override={unsubscribeButtonCss}>
+                                    {#if subscription.processing === true}
+                                        <Loader color="gray" size="sm"/>
+                                    {:else}
+                                        <Text color="#C13538" align="center" size="sm"
+                                              on:click={() => {unsubscribe(subscription.uuid)}}>구독 취소</Text>
+                                    {/if}
+                                </Button>
+                            {:else}
+                                <Button disabled={subscription.processing} override={subscribeButtonCss}>
+                                    {#if subscription.processing === true}
+                                        <Loader color="gray" size="sm"/>
+                                    {:else}
+                                        <Text color="#4F5867" align="center" size="sm"
+                                              on:click={() => {subscribe(subscription.uuid)}}>구독</Text>
+                                    {/if}
+                                </Button>
+                            {/if}
+                        </Center>
+                    </Flex>
                 </Paper>
         {/each}
         </Stack>
@@ -160,6 +162,7 @@
     body {
         padding-top: 1rem;
         height: 100%;
+        margin: 0;
     }
 
     .scrollableList {

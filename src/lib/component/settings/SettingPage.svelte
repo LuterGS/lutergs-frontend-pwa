@@ -1,5 +1,5 @@
 <script>
-    import {Group, Paper, Stack, Text, ActionIcon, Textarea, Loader} from "@svelteuidev/core";
+    import {Group, Paper, Stack, Text, ActionIcon, Textarea, Loader, Grid, Center} from "@svelteuidev/core";
     import {Check, PaperPlane, Reload} from "radix-icons-svelte";
     import { useRegisterSW } from 'virtual:pwa-register/svelte';
     import {newTopicMakeRequest} from "$lib/push/PushRequests.ts";
@@ -53,15 +53,21 @@
 <body>
     <Stack spacing="sm">
         <Paper>
-            <Group position="apart">
-                <Stack spacing="xs">
-                    <Text>서비스 워커 리프레시</Text>
-                    <Text color="gray" size="xs">UI 를 업데이트할 때 사용합니다. 버튼이 파란색이면 누르세요!</Text>
-                </Stack>
-                <ActionIcon disabled={!needUpdate} variant="light" color="blue" on:click={() => {refreshSW()}}>
-                    <Reload />
-                </ActionIcon>
-            </Group>
+            <Grid>
+                <Grid.Col span={10}>
+                    <Stack spacing="xs">
+                        <Text>서비스 워커 리프레시</Text>
+                        <Text color="gray" size="xs">UI 를 업데이트할 때 사용합니다. 버튼이 파란색이면 누르세요!</Text>
+                    </Stack>
+                </Grid.Col>
+                <Grid.Col span={2}>
+                    <Center override={{height: "100%"}}>
+                        <ActionIcon disabled={!needUpdate} variant="light" color="blue" on:click={() => {refreshSW()}}>
+                            <Reload />
+                        </ActionIcon>
+                    </Center>
+                </Grid.Col>
+            </Grid>
         </Paper>
         <Paper>
             <Stack>
@@ -88,3 +94,9 @@
         </Paper>
     </Stack>
 </body>
+
+<style>
+    body {
+        margin: 0;
+    }
+</style>
