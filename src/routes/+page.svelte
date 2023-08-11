@@ -7,8 +7,6 @@
     import Header from "$lib/component/header/Header.svelte";
     import NotiPage from "$lib/component/notification/NotiPage.svelte";
     import SubPage from "$lib/component/subscription/SubPage.svelte";
-    import SettingPage from "$lib/component/settings/SettingPage.svelte";
-    import {pushGrantedStore} from "$lib/push/PushStore";
 
     let lessThan400px = false;
 
@@ -31,7 +29,6 @@
                 }
             })
         })
-        pushGrantedStore.set(Notification.requestPermission());
     })
 
     // UI
@@ -89,7 +86,9 @@
             {:else if currentPage === Page.SETTINGS}
                 <div transition:fly={pageTransitionLink.setting.t} class="transition">
                     <Header />
-                    <SettingPage />
+                    {#await import('$lib/component/settings/SettingPage.svelte') then { default: SettingPage} }
+                        <SettingPage />
+                    {/await}
                 </div>
             {/if}
         </div>

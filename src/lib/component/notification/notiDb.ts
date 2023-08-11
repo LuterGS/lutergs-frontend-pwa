@@ -45,4 +45,4 @@ export class NotiHistoryDexie extends Dexie {
     }
 }
 
-export const notiHistory = new NotiHistoryDexie()
+export const notiHistoryDb = new NotiHistoryDexie()

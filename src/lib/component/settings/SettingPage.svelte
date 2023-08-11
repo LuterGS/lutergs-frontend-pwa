@@ -5,6 +5,8 @@
     import {newTopicMakeRequest} from "$lib/push/PushRequests.ts";
 
     const {
+        offlineReady,
+        needRefresh,
         updateServiceWorker
     } = useRegisterSW({
         onRegistered(r) {
@@ -27,6 +29,25 @@
             newSubTextAreaValue = '';
         });
     }
+
+
+    const close = () => {
+        offlineReady.set(false);
+        needRefresh.set(false);
+    }
+    const refreshSW = () => {
+        updateServiceWorker(true);
+        close();
+    }
+    let needUpdate = false;
+    $: toast = $offlineReady || $needRefresh
+    $: {
+        if (toast && $offlineReady) {
+            close();
+            needUpdate = false;
+        }
+        if (toast && $needRefresh) needUpdate = true;
+    }
 </script>
 
 <body>
@@ -35,9 +56,9 @@
             <Group position="apart">
                 <Stack spacing="xs">
                     <Text>서비스 워커 리프레시</Text>
-                    <Text color="gray" size="xs">UI 를 업데이트할 때 사용합니다.</Text>
+                    <Text color="gray" size="xs">UI 를 업데이트할 때 사용합니다. 버튼이 파란색이면 누르세요!</Text>
                 </Stack>
-                <ActionIcon on:click={() => {updateServiceWorker(true)}}>
+                <ActionIcon disabled={!needUpdate} variant="light" color="blue" on:click={() => {refreshSW()}}>
                     <Reload />
                 </ActionIcon>
             </Group>

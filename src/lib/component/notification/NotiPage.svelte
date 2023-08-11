@@ -1,5 +1,5 @@
 <script lang="ts">
-    import {notiHistory} from "$lib/component/notification/notiDb";
+    import {notiHistoryDb} from "$lib/component/notification/notiDb";
     import {liveQuery} from "dexie";
     import {Badge, NativeSelect, Grid, Stack, Text, Space, Paper, Group} from "@svelteuidev/core";
     import {pushGrantedStore} from "$lib/push/PushStore";
@@ -11,7 +11,7 @@
     let selectedTopic = "all";
     let filteredNotis;
     let rawQuery = liveQuery(
-        () => notiHistory.pushNotification.orderBy('receivedAt').reverse().toArray()
+        () => notiHistoryDb.pushNotification.orderBy('receivedAt').reverse().toArray()
     );
     rawQuery.subscribe(pushNotis => {
         allNotis = pushNotis;

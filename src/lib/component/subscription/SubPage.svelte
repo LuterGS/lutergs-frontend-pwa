@@ -1,43 +1,44 @@
 <script lang="ts">
     import {Button, Group, Loader, Paper, Stack, Text, ThemeIcon} from "@svelteuidev/core";
     import {onMount} from "svelte";
-    import {
-        getAllTopics,
-        getSubscribedTopics,
-        subscribeToTopic,
-        unsubscribeToTopic
-    } from "$lib/push/PushRequests";
-    import type {ReqResult} from "$lib/request/Request";
-    import {getSubscribedTopicsByInternal} from "$lib/push/PushRequests.js";
     import {Check, CheckCircled} from "radix-icons-svelte";
-    import {pushAuthStore} from "$lib/push/PushStore";
     import ClickablePaper from "$lib/ui/ClickablePaper.svelte";
+    import {liveQuery} from "dexie";
+    import {subListDb, type Subscription} from "$lib/component/subscription/subDb";
 
-    let topicList: ReqResult;
-    // description, name, subscription, uuid
-    let subscribedTopicList: ReqResult;
+    interface ViewSubscriptions extends Subscription {
+        processing: boolean;
+    }
+
+    let allSubscriptions: ViewSubscriptions[] = []
+    let allSubscriptionsRawQuery = liveQuery(
+        () => subListDb.subscription.toArray()
+    )
+    allSubscriptionsRawQuery.subscribe(allSubs => {
+        allSubscriptions = allSubs.map(sub => {
+            const res: ViewSubscriptions = {
+                id: sub.id,
+                uuid: sub.uuid,
+                name: sub.name,
+                description: sub.description,
+                isSubscribed: sub.isSubscribed,
+                processing: false
+            }
+            return res;
+        }).sort((a, b) => a.id!! < b.id!! ? 1 : -1)
+    })
+    // $: {
+    //     allSubscriptions = allSubscriptions
+    // }
+
     let isRefreshing = false;
     let isRefreshed = false;
-    $: {
-        subscribedTopicList = subscribedTopicList;
-        topicList = topicList;
-    }
-    const refreshTopicList = () => {
-        return getAllTopics().then(result => {
-            // result.data.map
-            topicList = result;
-            topicList.data = topicList.data.map(d => {
-                d.processing = false;
-                return d
-            });
-        })
-    }
     onMount(() => {
-        refreshTopicList()
+        subListDb.updateAllSubs();
     })
     const refreshTopicListByButton = () => {
         isRefreshing = true;
-        refreshTopicList().then(() => {
+        subListDb.updateAllSubs().then(() => {
             isRefreshing = false;
             isRefreshed = true;
             setTimeout(() => {
@@ -46,35 +47,21 @@
         });
     }
 
-    pushAuthStore.subscribe(value => {
-        getSubscribedTopics(value).then(result => {
-            subscribedTopicList = result;
+    const subscribe = (uuid: string) => {
+        const index = allSubscriptions.findIndex(sub => sub.uuid === uuid)
+        allSubscriptions[index].processing = true;
+        subListDb.subscribeToTopic(uuid).then(() => {
+            const index = allSubscriptions.findIndex(sub => sub.uuid === uuid)
+            allSubscriptions[index].processing = false;
         })
-    })
-    const isSubscribedTopic = (topicUUID: string) => {
-        return subscribedTopicList.data.find(d => topicUUID === d.uuid) != null;
     }
 
-    const subToTopic = (idx: number) => {
-        topicList.data[idx].processing = true;
-        subscribeToTopic(topicList.data[idx].uuid).then(d => {
-            topicList.data[idx].processing = false;
-            if (d.isError === false) {
-                getSubscribedTopicsByInternal().then(result => {
-                    subscribedTopicList = result;
-                })
-            }
-        })
-    }
-    const unsubToTopic = (idx: number) => {
-        topicList.data[idx].processing = true;
-        unsubscribeToTopic(topicList.data[idx].uuid).then(d => {
-            topicList.data[idx].processing = false;
-            if (d.isError === false) {
-                getSubscribedTopicsByInternal().then(result => {
-                    subscribedTopicList = result;
-                })
-            }
+    const unsubscribe = (uuid: string) => {
+        const index = allSubscriptions.findIndex(sub => sub.uuid === uuid)
+        allSubscriptions[index].processing = true;
+        subListDb.unsubscribeToTopic(uuid).then(() => {
+            const index = allSubscriptions.findIndex(sub => sub.uuid === uuid)
+            allSubscriptions[index].processing = false;
         })
     }
 
@@ -111,62 +98,60 @@
 
 <body>
     <div class="scrollableList">
-        {#if topicList && subscribedTopicList}
-            <Stack spacing="sm">
-                <ClickablePaper disabled={isRefreshing || isRefreshed} height="2.6rem"
-                                padding="0.5rem" onClick={() => {refreshTopicListByButton()}}>
-                    {#if isRefreshing === false && isRefreshed === false}
-                        <Text align="center">click to Refresh</Text>
-                    {:else if isRefreshing === true && isRefreshed === false}
-                        <Group position="center">
-                            <Text>Refreshing...</Text>
-                            <Loader color="gray" size={4} />
-                        </Group>
-                    {:else if isRefreshing === false && isRefreshed === true}
-                        <Group position="center">
-                            <Text>Refreshed!</Text>
-                            <Check color="green" size={"1.6rem"} />
-                        </Group>
-                    {/if}
-                </ClickablePaper>
-                {#each topicList.data as topic, index}
-                    <Paper override={listStackCss}>
-                        <Group position="apart">
-                            <Stack spacing="sm">
-                                <Group position="left">
-                                    <Text weight={"bold"}>{topic.name}</Text>
-                                    {#if isSubscribedTopic(topic.uuid)}
-                                        <ThemeIcon variant="white" radius="xs" size="xs">
-                                            <CheckCircled />
-                                        </ThemeIcon>
-                                    {/if}
-                                </Group>
-                                <Text>{topic.description}</Text>
-                            </Stack>
-                            {#if isSubscribedTopic(topic.uuid)}
-                                <Button disabled={topic.processing} override={unsubscribeButtonCss}>
-                                    {#if topic.processing === true}
-                                        <Loader color="gray" size="sm"/>
-                                    {:else}
-                                        <Text color="#C13538" align="center" size="sm"
-                                              on:click={() => {unsubToTopic(index)}}>구독 취소</Text>
-                                    {/if}
-                                </Button>
-                            {:else}
-                                <Button disabled={topic.processing} override={subscribeButtonCss}>
-                                    {#if topic.processing === true}
-                                        <Loader color="gray" size="sm"/>
-                                    {:else}
-                                        <Text color="#4F5867" align="center" size="sm"
-                                              on:click={() => {subToTopic(index)}}>구독</Text>
-                                    {/if}
-                                </Button>
-                            {/if}
-                        </Group>
-                    </Paper>
-                {/each}
-            </Stack>
-        {/if}
+        <Stack spacing="sm">
+            <ClickablePaper disabled={isRefreshing || isRefreshed} height="2.6rem"
+                            padding="0.5rem" onClick={() => {refreshTopicListByButton()}}>
+                {#if isRefreshing === false && isRefreshed === false}
+                    <Text align="center">click to Refresh</Text>
+                {:else if isRefreshing === true && isRefreshed === false}
+                    <Group position="center">
+                        <Text>Refreshing...</Text>
+                        <Loader color="gray" size={4} />
+                    </Group>
+                {:else if isRefreshing === false && isRefreshed === true}
+                    <Group position="center">
+                        <Text>Refreshed!</Text>
+                        <Check color="green" size={"1.6rem"} />
+                    </Group>
+                {/if}
+            </ClickablePaper>
+            {#each allSubscriptions as subscription}
+                <Paper override={listStackCss}>
+                    <Group position="apart">
+                        <Stack spacing="sm">
+                            <Group position="left">
+                                <Text weight={"bold"}>{subscription.name}</Text>
+                                {#if subscription.isSubscribed}
+                                    <ThemeIcon variant="white" radius="xs" size="xs">
+                                        <CheckCircled />
+                                    </ThemeIcon>
+                                {/if}
+                            </Group>
+                            <Text>{subscription.description}</Text>
+                        </Stack>
+                        {#if subscription.isSubscribed}
+                            <Button disabled={subscription.processing} override={unsubscribeButtonCss}>
+                                {#if subscription.processing === true}
+                                    <Loader color="gray" size="sm"/>
+                                {:else}
+                                    <Text color="#C13538" align="center" size="sm"
+                                          on:click={() => {unsubscribe(subscription.uuid)}}>구독 취소</Text>
+                                {/if}
+                            </Button>
+                        {:else}
+                            <Button disabled={subscription.processing} override={subscribeButtonCss}>
+                                {#if subscription.processing === true}
+                                    <Loader color="gray" size="sm"/>
+                                {:else}
+                                    <Text color="#4F5867" align="center" size="sm"
+                                          on:click={() => {subscribe(subscription.uuid)}}>구독</Text>
+                                {/if}
+                            </Button>
+                        {/if}
+                    </Group>
+                </Paper>
+        {/each}
+        </Stack>
     </div>
 </body>
 
@@ -185,5 +170,9 @@
         margin: 0;
         --ms-overflow-style: none;
         scrollbar-width: none;
+    }
+
+    .scrollableList::-webkit-scrollbar {
+        display: none;
     }
 </style>
