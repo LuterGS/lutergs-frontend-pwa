@@ -11,15 +11,12 @@
 </svelte:head>
 
 <SvelteUIProvider>
-        <body class="body">
-            <div class="headerAndPage">
-                <slot />
-            </div>
-            <Footer />
-        </body>
-    {#await import('$lib/serviceWorker/ReloadPrompt.svelte') then { default: ReloadPrompt}}
-        <ReloadPrompt />
-    {/await}
+    <body class="body">
+        <div class="headerAndPage">
+            <slot />
+        </div>
+        <Footer />
+    </body>
 </SvelteUIProvider>
 
 
