@@ -53,7 +53,6 @@
             topicListDb.topic.toArray().then(subs => {
                 allTopics = subs.map(sub => {
                     return {
-                        id: sub.id,
                         uuid: sub.uuid,
                         name: sub.name,
                         description: sub.description,
@@ -63,7 +62,7 @@
                     }
                 }).sort((a, b) => {
                     if (a.type === b.type) {
-                        return a.id!! < b.id!! ? 1 : -1
+                        return a.name < b.name ? 1 : -1
                     } else {
                         return a.type > b.type ? 1 : -1
                     }
@@ -74,7 +73,6 @@
     allTopicsRawQuery.subscribe(allRawTopics => {
         allTopics = allRawTopics.map(sub => {
             const res: ViewTopics = {
-                id: sub.id,
                 uuid: sub.uuid,
                 name: sub.name,
                 description: sub.description,
@@ -85,7 +83,7 @@
             return res;
         }).sort((a, b) => {
             if (a.type === b.type) {
-                return a.id!! < b.id!! ? 1 : -1
+                return a.name < b.name ? 1 : -1
             } else {
                 return a.type > b.type ? 1 : -1
             }
@@ -129,9 +127,6 @@
         })
     }
 
-    const listStackCss = {
-        padding: "0.5rem"
-    }
     const subscribeButtonCss = {
         padding: "8px",
         border: "0rem",

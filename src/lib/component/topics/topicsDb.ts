@@ -14,7 +14,6 @@ export enum TopicType {
 }
 
 export class Topic {
-    readonly id?: number;
     readonly uuid: string;
     readonly name: string;
     readonly description: string;
@@ -59,7 +58,6 @@ export class TopicsDexie extends Dexie {
                     if (idx === -1) { delete ref.value }
                     else {
                         ref.value = {
-                            id: value.id,
                             uuid: value.uuid,
                             name: markedAllTopics[idx].name,
                             description: markedAllTopics[idx].description,
