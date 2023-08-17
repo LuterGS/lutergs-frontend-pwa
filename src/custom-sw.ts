@@ -40,7 +40,7 @@ async function showNotification(e: PushEvent): Promise<void> {
         const waitMilli = pushMessage.showTimestamp - Date.now() > 0
             ? pushMessage.showTimestamp - Date.now()
             : 0
-        setTimeout(() => {
+        self.setTimeout(() => {
             self.registration.showNotification(pushMessage.title, {
                 body: pushMessage.body,
                 icon: pushMessage.icon ?? undefined
