@@ -3,12 +3,11 @@
 
     export let onClick;
     export let padding = "16px";
-    export let border, height;
+    export let height;
     export let disabled = false;
 
     const override = {
         padding: padding,
-        border: border,
         outline: "0px",
         display: "block",
         height: height ?? "max-content",

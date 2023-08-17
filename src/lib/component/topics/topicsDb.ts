@@ -56,7 +56,7 @@ export class TopicsDexie extends Dexie {
             return this.topic.toCollection().modify((value, ref) => {
                 const idx = markedAllTopics?.findIndex(t => t.uuid === value.uuid)
                 if (idx != undefined && markedAllTopics) {
-                    if (idx < -1) { delete ref.value }
+                    if (idx === -1) { delete ref.value }
                     else {
                         ref.value = {
                             id: value.id,
