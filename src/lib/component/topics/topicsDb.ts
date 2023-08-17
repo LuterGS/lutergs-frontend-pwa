@@ -4,7 +4,6 @@ import {
     getSubscribedTopics,
     subscribeToTopic, unsubscribeFromTopic
 } from "$lib/push/PushRequests";
-import {pushAuthStore} from "$lib/push/PushStore";
 
 export enum TopicStatus {
     SUBSCRIBED, UNSUBSCRIBED, ERROR
@@ -83,11 +82,12 @@ export class TopicsDexie extends Dexie {
     }
 
     updateSubscribedTopics() {
-        getSubscribedTopics().then(result => {
+        return getSubscribedTopics().then(result => {
             if (!result.isError) {
                 this.topic.toCollection().modify((value, ref) => {
                     const idx = result.data.findIndex(d => d.uuid === value.uuid)
                     if (idx != -1) { ref.value.isSubscribed = TopicStatus.SUBSCRIBED }
+                    else { ref.value.isSubscribed = TopicStatus.UNSUBSCRIBED }
                 })
             }
         })
@@ -120,8 +120,3 @@ export class TopicsDexie extends Dexie {
 }
 
 export const topicListDb = new TopicsDexie();
-
-// subscribe from when...
-pushAuthStore.subscribe(() => {
-    topicListDb.updateSubscribedTopics()
-})

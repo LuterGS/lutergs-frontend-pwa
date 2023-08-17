@@ -8,14 +8,7 @@
         offlineReady,
         needRefresh,
         updateServiceWorker
-    } = useRegisterSW({
-        onRegistered(r) {
-            console.log(`SW Registered: ${r}`)
-        },
-        onRegisterError(error) {
-            console.log('SW registration error', error)
-        },
-    })
+    } = useRegisterSW({})
 
     let newSubTextAreaValue = '';
     let textAreaDisabled = false;

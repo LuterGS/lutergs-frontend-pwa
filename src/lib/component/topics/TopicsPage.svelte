@@ -18,7 +18,8 @@
     import ClickablePaper from "$lib/ui/ClickablePaper.svelte";
     import {liveQuery} from "dexie";
     import {type Topic, topicListDb, TopicStatus, TopicType} from "$lib/component/topics/topicsDb";
-    import {pushGrantedStore} from "$lib/push/PushStore";
+    import {pushAuthStore, pushGrantedStore} from "$lib/push/PushStore";
+
 
     // about notification permission
     const requestPermission = () => {
@@ -38,18 +39,41 @@
     })
 
 
-    // about topic list
-    interface ViewSubscriptions extends Topic {
+
+    interface ViewTopics extends Topic {
         processing: boolean;
     }
-
-    let allSubscriptions: ViewSubscriptions[] = []
-    let allSubscriptionsRawQuery = liveQuery(
+    let allTopics: ViewTopics[] = []
+    let allTopicsRawQuery = liveQuery(
         () => topicListDb.topic.toArray()
     )
-    allSubscriptionsRawQuery.subscribe(allSubs => {
-        allSubscriptions = allSubs.map(sub => {
-            const res: ViewSubscriptions = {
+    // about topic list
+    pushAuthStore.subscribe(pushInfo => {
+        topicListDb.updateSubscribedTopics().then(() => {
+            topicListDb.topic.toArray().then(subs => {
+                allTopics = subs.map(sub => {
+                    return {
+                        id: sub.id,
+                        uuid: sub.uuid,
+                        name: sub.name,
+                        description: sub.description,
+                        isSubscribed: sub.isSubscribed,
+                        type: sub.type,
+                        processing: false
+                    }
+                }).sort((a, b) => {
+                    if (a.type === b.type) {
+                        return a.id!! < b.id!! ? 1 : -1
+                    } else {
+                        return a.type > b.type ? 1 : -1
+                    }
+                })
+            })
+        })
+    })
+    allTopicsRawQuery.subscribe(allRawTopics => {
+        allTopics = allRawTopics.map(sub => {
+            const res: ViewTopics = {
                 id: sub.id,
                 uuid: sub.uuid,
                 name: sub.name,
@@ -68,7 +92,7 @@
         })
     })
     $: {
-        allSubscriptions = allSubscriptions
+        allTopics = allTopics
     }
 
     let isRefreshing = false;
@@ -88,20 +112,20 @@
     }
 
     const subscribe = (uuid: string) => {
-        const index = allSubscriptions.findIndex(sub => sub.uuid === uuid)
-        allSubscriptions[index].processing = true;
+        const index = allTopics.findIndex(sub => sub.uuid === uuid)
+        allTopics[index].processing = true;
         topicListDb.subscribeToTopic(uuid).then(() => {
-            const index = allSubscriptions.findIndex(sub => sub.uuid === uuid)
-            allSubscriptions[index].processing = false;
+            const index = allTopics.findIndex(sub => sub.uuid === uuid)
+            allTopics[index].processing = false;
         })
     }
 
     const unsubscribe = (uuid: string) => {
-        const index = allSubscriptions.findIndex(sub => sub.uuid === uuid)
-        allSubscriptions[index].processing = true;
+        const index = allTopics.findIndex(sub => sub.uuid === uuid)
+        allTopics[index].processing = true;
         topicListDb.unsubscribeFromTopic(uuid).then(() => {
-            const index = allSubscriptions.findIndex(sub => sub.uuid === uuid)
-            allSubscriptions[index].processing = false;
+            const index = allTopics.findIndex(sub => sub.uuid === uuid)
+            allTopics[index].processing = false;
         })
     }
 
@@ -172,7 +196,7 @@
                     </Group>
                 {/if}
             </ClickablePaper>
-            {#each allSubscriptions as subscription}
+            {#each allTopics as subscription}
                 <Paper override={{padding: "0.5rem", backgroundColor: subscription.type === TopicType.FIXED ? "#F1F1F1" : "white"}}>
                     <Flex justify="space-between">
                         <Stack spacing="sm">

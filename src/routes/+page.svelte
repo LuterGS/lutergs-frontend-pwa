@@ -73,24 +73,24 @@
 <body bind:clientWidth={width} bind:clientHeight={height}>
     <div class="main">
         <div class="page">
-            {#if currentPage === Page.MESSAGES}
-                <div transition:fly={pageTransitionLink.messages.t} class="transition">
-                    <Header />
-                    <MessagesPage />
-                </div>
-            {:else if currentPage === Page.TOPICS}
-                <div transition:fly={pageTransitionLink.topics.t} class="transition">
-                    <Header />
-                    <TopicsPage />
-                </div>
-            {:else if currentPage === Page.SETTINGS}
-                <div transition:fly={pageTransitionLink.setting.t} class="transition">
-                    <Header />
-                    {#await import('$lib/component/settings/SettingPage.svelte') then { default: SettingPage} }
+            {#await import('$lib/component/settings/SettingPage.svelte') then { default: SettingPage} }
+                {#if currentPage === Page.MESSAGES}
+                    <div transition:fly={pageTransitionLink.messages.t} class="transition">
+                        <Header />
+                        <MessagesPage />
+                    </div>
+                {:else if currentPage === Page.TOPICS}
+                    <div transition:fly={pageTransitionLink.topics.t} class="transition">
+                        <Header />
+                        <TopicsPage />
+                    </div>
+                {:else if currentPage === Page.SETTINGS}
+                    <div transition:fly={pageTransitionLink.setting.t} class="transition">
+                        <Header />
                         <SettingPage />
-                    {/await}
-                </div>
-            {/if}
+                    </div>
+                {/if}
+            {/await}
         </div>
     </div>
 </body>
