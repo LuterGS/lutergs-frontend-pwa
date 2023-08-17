@@ -31,24 +31,23 @@ registerRoute(new NavigationRoute(
 ))
 
 self.addEventListener('push', (e) => {
-    e.waitUntil(showNotification(e))
+    e.waitUntil(new Promise(function (resolve, reject) {
+        const pushMessage = new PushMessage(e.data.text())
+        if (!pushMessage.isHealthCheck()) {
+            const waitMilli = pushMessage.showTimestamp - Date.now() > 0
+                ? pushMessage.showTimestamp - Date.now()
+                : 0
+            self.setTimeout(() => {
+                self.registration.showNotification(pushMessage.title, {
+                    body: pushMessage.body,
+                    icon: pushMessage.icon ?? undefined
+                });
+                pushMessagesDb.addMessagePerTopic(pushMessage);
+                resolve(null);
+            }, waitMilli)
+        } else {
+            console.log("health check message received");
+            resolve(null);
+        }
+    }))
 })
-
-async function showNotification(e: PushEvent): Promise<void> {
-    const pushMessage = new PushMessage(e.data.text())
-    if (!pushMessage.isHealthCheck()) {
-        const waitMilli = pushMessage.showTimestamp - Date.now() > 0
-            ? pushMessage.showTimestamp - Date.now()
-            : 0
-        self.setTimeout(() => {
-            self.registration.showNotification(pushMessage.title, {
-                body: pushMessage.body,
-                icon: pushMessage.icon ?? undefined
-            })
-            pushMessagesDb.addMessagePerTopic(pushMessage);
-        }, waitMilli)
-        return Promise.resolve();
-    } else {
-        console.log("health check message received");
-    }
-}
