@@ -39,7 +39,7 @@
         updateServiceWorker(true);
         close();
     }
-    let needUpdate = false;
+    let needUpdate = null;
     $: toast = $offlineReady || $needRefresh
     $: {
         if (toast && $offlineReady) {
@@ -51,6 +51,9 @@
 </script>
 
 <body>
+<Paper>
+
+</Paper>
     <Stack spacing="sm">
         <Paper>
             <Grid>
@@ -63,7 +66,11 @@
                 <Grid.Col span={2}>
                     <Center override={{height: "100%"}}>
                         <ActionIcon disabled={!needUpdate} variant="light" color="blue" on:click={() => {refreshSW()}}>
-                            <Reload />
+                            {#if needUpdate != null}
+                                <Reload />
+                            {:else}
+                                <Reload />
+                            {/if}
                         </ActionIcon>
                     </Center>
                 </Grid.Col>

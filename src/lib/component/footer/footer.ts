@@ -2,11 +2,11 @@ import {writable} from "svelte/store";
 
 
 export enum Page {
-    NOTIFICATION, SUBSCRIPTION, SETTINGS
+    TOPICS,  MESSAGES, SETTINGS,
 }
 
 const PageCurrentClicked = () => {
-    const { subscribe, set } = writable(Page.NOTIFICATION);
+    const { subscribe, set } = writable(Page.TOPICS);
 
     return {
         subscribe,

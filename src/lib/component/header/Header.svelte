@@ -31,11 +31,11 @@
     let header;
     pageCurrentClicked.subscribe(value => {
         switch (value) {
-            case Page.NOTIFICATION:
-                header = "NOTIFICATION"
+            case Page.MESSAGES:
+                header = "MESSAGES"
                 break;
-            case Page.SUBSCRIPTION:
-                header = "SUBSCRIPTION"
+            case Page.TOPICS:
+                header = "TOPICS"
                 break;
             case Page.SETTINGS:
                 header = "SETTINGS"

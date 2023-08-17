@@ -40,22 +40,21 @@
         }
     }
 
-    let notiClicked = true;
-    pageCurrentClicked.set(Page.NOTIFICATION);
-    let subClicked = false;
+    let topicsClicked = true;
+    let messagesClicked = false;
     let settingClicked = false;
-    let notiColor: string;
-    let subColor: string;
+    let topicsColor: string;
+    let messagesColor: string;
     let settingColor: string;
     $: {
-        notiColor = notiClicked ? "black" : "gray"
-        subColor = subClicked ? "black" : "gray"
+        messagesColor = messagesClicked ? "black" : "gray"
+        topicsColor = topicsClicked ? "black" : "gray"
         settingColor = settingClicked ? "black" : "gray"
     }
     const clickButton = (type: Page) => {
-        if (type === Page.NOTIFICATION) { notiClicked = true; subClicked = false; settingClicked = false; }
-        if (type === Page.SUBSCRIPTION) { notiClicked = false; subClicked = true; settingClicked = false; }
-        if (type === Page.SETTINGS) { notiClicked = false; subClicked = false; settingClicked = true; }
+        if (type === Page.MESSAGES) { messagesClicked = true; topicsClicked = false; settingClicked = false; }
+        if (type === Page.TOPICS) { messagesClicked = false; topicsClicked = true; settingClicked = false; }
+        if (type === Page.SETTINGS) { messagesClicked = false; topicsClicked = false; settingClicked = true; }
         pageCurrentClicked.set(type);
     }
 </script>
@@ -63,16 +62,16 @@
 <body>
     <Paper override={footerCss}>
         <SimpleGrid cols={3} override={{height: "100%"}}>
-            <Button ripple override={buttonCss} on:click={() => {clickButton(Page.NOTIFICATION)}}>
+            <Button ripple override={buttonCss} on:click={() => {clickButton(Page.TOPICS)}}>
                 <Stack align="center" spacing={5}>
-                    <Bell size={"1.5rem"} color={notiColor}/>
-                    <Text size="sm" color={notiColor}>Notification</Text>
+                    <Bookmark size={"1.5rem"} color={topicsColor}/>
+                    <Text size="sm" color={topicsColor} >Topics</Text>
                 </Stack>
             </Button>
-            <Button ripple override={buttonCss} on:click={() => {clickButton(Page.SUBSCRIPTION)}}>
+            <Button ripple override={buttonCss} on:click={() => {clickButton(Page.MESSAGES)}}>
                 <Stack align="center" spacing={5}>
-                    <Bookmark size={"1.5rem"} color={subColor}/>
-                    <Text size="sm" color={subColor} >Subscription</Text>
+                    <Bell size={"1.5rem"} color={messagesColor}/>
+                    <Text size="sm" color={messagesColor}>Messages</Text>
                 </Stack>
             </Button>
             <Button ripple override={buttonCss} on:click={() => {clickButton(Page.SETTINGS)}}>

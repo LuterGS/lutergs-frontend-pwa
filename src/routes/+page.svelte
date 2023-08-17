@@ -5,12 +5,12 @@
     import {sendSubscriptionToServer} from "$lib/push/PushRequests";
     import {Page, pageCurrentClicked} from "$lib/component/footer/footer.js";
     import Header from "$lib/component/header/Header.svelte";
-    import NotiPage from "$lib/component/notification/NotiPage.svelte";
-    import SubPage from "$lib/component/subscription/SubPage.svelte";
+    import MessagesPage from "$lib/component/messages/MessagesPage.svelte";
+    import TopicsPage from "$lib/component/topics/TopicsPage.svelte";
 
     let lessThan400px = false;
 
-    onMount(async() => {
+    onMount(() => {
         navigator.serviceWorker.ready.then(serviceWorkerRegistration => {
                 return serviceWorkerRegistration.pushManager.subscribe({
                     userVisibleOnly: true,
@@ -39,8 +39,8 @@
         disappearRight: {x: "-3rem", duration: 200}
     }
     let pageTransitionLink = {
-        noti: { t: transitions.appearLeft},
-        sub: { t: transitions.appearLeft},
+        messages: { t: transitions.appearLeft},
+        topics: { t: transitions.appearLeft},
         setting: { t: transitions.appearLeft}
     }
     let currentPage;
@@ -48,8 +48,8 @@
     pageCurrentClicked.subscribe(newPage => {
         // set new Transition
         let newTransition;
-        if (newPage === Page.NOTIFICATION) newTransition = pageTransitionLink.noti
-        if (newPage === Page.SUBSCRIPTION) newTransition = pageTransitionLink.sub
+        if (newPage === Page.MESSAGES) newTransition = pageTransitionLink.messages
+        if (newPage === Page.TOPICS) newTransition = pageTransitionLink.topics
         if (newPage === Page.SETTINGS) newTransition = pageTransitionLink.setting
 
         // set transition
@@ -73,15 +73,15 @@
 <body bind:clientWidth={width} bind:clientHeight={height}>
     <div class="main">
         <div class="page">
-            {#if currentPage === Page.NOTIFICATION}
-                <div transition:fly={pageTransitionLink.noti.t} class="transition">
+            {#if currentPage === Page.MESSAGES}
+                <div transition:fly={pageTransitionLink.messages.t} class="transition">
                     <Header />
-                    <NotiPage />
+                    <MessagesPage />
                 </div>
-            {:else if currentPage === Page.SUBSCRIPTION}
-                <div transition:fly={pageTransitionLink.sub.t} class="transition">
+            {:else if currentPage === Page.TOPICS}
+                <div transition:fly={pageTransitionLink.topics.t} class="transition">
                     <Header />
-                    <SubPage />
+                    <TopicsPage />
                 </div>
             {:else if currentPage === Page.SETTINGS}
                 <div transition:fly={pageTransitionLink.setting.t} class="transition">

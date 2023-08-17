@@ -1,27 +1,27 @@
 <script lang="ts">
-    import {notiHistoryDb} from "$lib/component/notification/notiDb";
+    import {pushMessagesDb} from "$lib/component/messages/messagesDb";
     import {liveQuery} from "dexie";
     import {Badge, NativeSelect, Grid, Stack, Text, Space, Paper, Group} from "@svelteuidev/core";
     import {pushGrantedStore} from "$lib/push/PushStore";
-    import type {PushNotification} from "$lib/push/PushNotification";
+    import type {PushMessage} from "$lib/push/PushMessage";
 
     // logic
-    let allNotis: PushNotification[] = [];
+    let allPushMessages: PushMessage[] = [];
     let allTopics: string[] = [];
     let selectedTopic = "all";
-    let filteredNotis;
+    let filteredPushMessages;
     let rawQuery = liveQuery(
-        () => notiHistoryDb.pushNotification.orderBy('receivedAt').reverse().toArray()
+        () => pushMessagesDb.pushMessages.orderBy('receivedAt').reverse().toArray()
     );
     rawQuery.subscribe(pushNotis => {
-        allNotis = pushNotis;
+        allPushMessages = pushNotis;
         const topics = new Set();
         pushNotis.forEach(noti => topics.add(noti.topic))
         topics.add("all");      // for all topic view handling
         allTopics = Array.from(topics.values());
     })
     $: {
-        filteredNotis = allNotis.filter(d => {
+        filteredPushMessages = allPushMessages.filter(d => {
             if (selectedTopic === "all") return true;
             else return d.topic === selectedTopic;
         })
@@ -86,15 +86,15 @@
     <Space h="md"/>
     <div class="scrollableList">
         <Stack spacing="xs">
-            {#each filteredNotis as noti, index}
+            {#each filteredPushMessages as message, index}
                 <Paper override={listStackCss}>
                     <Stack spacing="xs">
                         <Group position="apart">
-                            <Text color="blue">{noti.topic} - {index + 1}</Text>
-                            <Text color="gray" size="xs">at {noti.receivedAt}</Text>
+                            <Text color="blue">{message.topic} - {index + 1}</Text>
+                            <Text color="gray" size="xs">at {message.receivedAt}</Text>
                         </Group>
-                        <Text weight={'bold'}>{noti.title}</Text>
-                        <Text>{noti.body}</Text>
+                        <Text weight={'bold'}>{message.title}</Text>
+                        <Text>{message.body}</Text>
                     </Stack>
                 </Paper>
             {/each}

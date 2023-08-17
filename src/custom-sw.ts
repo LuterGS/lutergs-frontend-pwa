@@ -4,8 +4,8 @@
 /// <reference lib="esnext" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
-import {createPushAlarmFromText} from "./lib/push/PushNotification";
-import {notiHistoryDb} from "./lib/component/notification/notiDb";
+import {PushMessage} from "./lib/push/PushMessage";
+import {pushMessagesDb} from "./lib/component/messages/messagesDb";
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -31,14 +31,18 @@ registerRoute(new NavigationRoute(
 ))
 
 self.addEventListener('push', (e) => {
-    e.waitUntil(showNoti(e))
+    e.waitUntil(showNotification(e))
 })
 
-async function showNoti(e: PushEvent): Promise<void> {
-    const noti = createPushAlarmFromText(e.data.text())
-    notiHistoryDb.addNotiPerTopic(noti);
-    return self.registration.showNotification(noti.title, {
-        body: noti.body
-        // icon: noti.icon ?? null
-    })
+async function showNotification(e: PushEvent): Promise<void> {
+    const pushMessage = new PushMessage(e.data.text())
+    if (!pushMessage.isHealthCheck()) {
+        pushMessagesDb.addMessagePerTopic(pushMessage);
+        return self.registration.showNotification(pushMessage.title, {
+            body: pushMessage.body,
+            icon: pushMessage.icon ?? undefined
+        })
+    } else {
+        console.log("health check message received");
+    }
 }

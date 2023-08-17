@@ -40,7 +40,7 @@
 </script>
 
 <body>
-    <!-- notification -->
+    <!-- messages -->
     <AnimatedNotification
         visible={offlineNotiVisible}
         color="blue"

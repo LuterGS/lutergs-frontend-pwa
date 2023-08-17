@@ -23,8 +23,6 @@ const PushAuthStore = () => {
 }
 
 export const pushAuthStore = PushAuthStore();
-let localPushInfo: PushInfo;
-pushAuthStore.subscribe(p => localPushInfo = p);
 
 const PushGrantedStore = () => {
     const { subscribe, set } = writable("default")
