@@ -41,9 +41,13 @@ self.addEventListener('push', (e) => {
                 self.registration.showNotification(pushMessage.title, {
                     body: pushMessage.body,
                     icon: pushMessage.icon ?? undefined
+                }).then(() => {
+                    return pushMessagesDb.addMessagePerTopic(pushMessagesDb);
+                }).then(() => {
+                    resolve(null);
+                }).catch(() => {
+                    reject(null);
                 });
-                pushMessagesDb.addMessagePerTopic(pushMessage);
-                resolve(null);
             }, waitMilli)
         } else {
             console.log("health check message received");

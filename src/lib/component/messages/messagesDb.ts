@@ -6,8 +6,8 @@ export class TopicMessagesHistoryDexie extends Dexie {
     pushMessages!: Table<PushMessage>
     readonly limitOfTopicHistory: number = 30
 
-    addMessagePerTopic(pushNotification: PushMessage) {
-        this.pushMessages
+    async addMessagePerTopic(pushNotification: PushMessage): Promise<any> {
+        return this.pushMessages
             .where('topic')
             .equals(pushNotification.topic)
             .toArray()
