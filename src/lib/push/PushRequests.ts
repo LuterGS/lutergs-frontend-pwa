@@ -58,7 +58,7 @@ export const subscribeToTopic = async(topicUUID: string) => {
 }
 
 export const unsubscribeFromTopic = async(topicUUID: string) => {
-    return advFetch(`${PUBLIC_BACKEND_SERVER}/push/subscription/topic` + new URLSearchParams({
+    return advFetch(`${PUBLIC_BACKEND_SERVER}/push/subscription/topic?` + new URLSearchParams({
         uuid: topicUUID
     }), {
         method: "DELETE",
