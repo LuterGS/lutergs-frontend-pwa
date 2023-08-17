@@ -42,7 +42,7 @@ self.addEventListener('push', (e) => {
                     body: pushMessage.body,
                     icon: pushMessage.icon ?? undefined
                 }).then(() => {
-                    return pushMessagesDb.addMessagePerTopic(pushMessagesDb);
+                    return pushMessagesDb.addMessagePerTopic(pushMessage);
                 }).then(() => {
                     resolve(null);
                 }).catch(() => {
