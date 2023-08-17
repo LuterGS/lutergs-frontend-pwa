@@ -12,7 +12,7 @@ export default defineConfig({
 	define: {
 		// 'process.env.NODE_ENV': process.env.PUBLIC_ENV === 'dev' ? '"development"' : '"production"'
 		'process.env.NODE_ENV': '"development"',
-		'process.env.TZ': 'Asia/Seoul'
+		'process.env.TZ': '"Asia/Seoul"'
 	},
 	plugins: [
 		sveltekit(),
