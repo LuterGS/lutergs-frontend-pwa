@@ -34,21 +34,14 @@ self.addEventListener('push', (e) => {
     e.waitUntil(new Promise(function (resolve, reject) {
         const pushMessage = new PushMessage(e.data.text())
         if (!pushMessage.isHealthCheck()) {
-            const waitMilli = pushMessage.showTimestamp - Date.now() > 0
-                ? pushMessage.showTimestamp - Date.now()
-                : 0
-            self.setTimeout(() => {
-                self.registration.showNotification(pushMessage.title, {
-                    body: pushMessage.body,
-                    icon: pushMessage.icon ?? undefined
-                }).then(() => {
-                    return pushMessagesDb.addMessagePerTopic(pushMessage);
-                }).then(() => {
-                    resolve(null);
-                }).catch(() => {
-                    reject(null);
-                });
-            }, waitMilli)
+            self.registration.showNotification(pushMessage.title, {
+                body: pushMessage.body,
+                icon: pushMessage.icon ?? undefined
+            }).then(() => {
+                return pushMessagesDb.addMessagePerTopic(pushMessage)
+            }).finally(() => {
+                resolve(null);
+            })
         } else {
             console.log("health check message received");
             resolve(null);
