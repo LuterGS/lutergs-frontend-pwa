@@ -18,8 +18,4 @@ export class PushMessage {
         this.icon = parsed.icon ?? undefined;
         this.receivedAt = dayjs().format('YYYY-MM-DD HH:mm:ss');
     }
-
-    isHealthCheck(): boolean {
-        return this.topic === "healthCheck";
-    }
 }

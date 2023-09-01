@@ -31,20 +31,24 @@ registerRoute(new NavigationRoute(
 ))
 
 self.addEventListener('push', (e) => {
-    e.waitUntil(new Promise(function (resolve, reject) {
-        const pushMessage = new PushMessage(e.data.text())
-        if (!pushMessage.isHealthCheck()) {
-            self.registration.showNotification(pushMessage.title, {
-                body: pushMessage.body,
-                icon: pushMessage.icon ?? undefined
-            }).then(() => {
-                return pushMessagesDb.addMessagePerTopic(pushMessage)
-            }).finally(() => {
-                resolve(null);
-            })
-        } else {
-            console.log("health check message received");
-            resolve(null);
-        }
-    }))
+    e.waitUntil(resolveNotification(e))
 })
+
+/**
+ * 알림에 대한 iOS 정책 :
+ * https://developer.apple.com/documentation/usernotifications/sending_web_push_notifications_in_web_apps_and_browsers
+ *
+ * Safari doesn’t support invisible push notifications.
+ * --> 무조건 알람이 오면 띄워야 하는 것으로 추측됨 (delay 혹은 Not display 같은 행동을 하지 않음)
+ * --> healthCheck 는 사용하지 않음.
+ *
+ * */
+const resolveNotification = (ev: PushEvent) => {
+    const pushMessage = new PushMessage(ev.data.text())
+    self.registration.showNotification(pushMessage.title, {
+        body: pushMessage.body,
+        icon: pushMessage.icon ?? undefined
+    });
+    pushMessagesDb.addMessagePerTopic(pushMessage);
+    return null;
+}
