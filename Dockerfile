@@ -1,5 +1,7 @@
 FROM node:20 AS builder
 
+ENV PUBLIC_ENV=dev
+
 # move files to docker builder
 RUN mkdir /lutergs-frontend-pwa
 COPY . /lutergs-frontend-pwa
