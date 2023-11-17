@@ -3,7 +3,8 @@ FROM node:20 AS builder
 ENV PUBLIC_ENV=dev
 
 # move files to docker builder
-RUN mkdir /lutergs-frontend-pwa
+RUN mkdir /lutergs-frontend-pwa && \
+    echo "PUBLIC_ENV=dev" > /lutergs-frontend-pwa/.env
 COPY . /lutergs-frontend-pwa
 
 # build docker image
