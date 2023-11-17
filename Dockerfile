@@ -7,7 +7,7 @@ COPY . /lutergs-frontend-pwa
 # build docker image
 WORKDIR /lutergs-frontend-pwa
 RUN npm install && \
-    export NODE_ENV=production \
+    export NODE_ENV=production && \
     npm run build
 
 FROM node:20
