@@ -4,18 +4,18 @@
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
-import {PushMessage} from "./lib/push/PushMessage";
-import {pushMessagesDb} from "./lib/component/messages/messagesDb";
+import {PushMessage} from "$lib/push/PushMessage";
+import {pushMessagesDb} from "$lib/component/messages/messagesDb";
 
-const sw = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
+declare let self: ServiceWorkerGlobalScope
 
-sw.addEventListener('message', (event) => {
+self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING')
-        sw.skipWaiting()
+        self.skipWaiting()
 })
 
 // self.__WB_MANIFEST is default injection point
-precacheAndRoute(sw.__WB_MANIFEST)
+precacheAndRoute(self.__WB_MANIFEST)
 
 // clean old assets
 cleanupOutdatedCaches()
@@ -30,7 +30,7 @@ registerRoute(new NavigationRoute(
     { allowlist },
 ))
 
-sw.addEventListener('push', (e) => {
+self.addEventListener('push', (e) => {
     e.waitUntil(resolveNotification(e))
 })
 
@@ -45,7 +45,7 @@ sw.addEventListener('push', (e) => {
  * */
 const resolveNotification = (ev: PushEvent) => {
     const pushMessage = new PushMessage(ev.data.text())
-    sw.registration.showNotification(pushMessage.title, {
+    self.registration.showNotification(pushMessage.title, {
         body: pushMessage.body,
         icon: pushMessage.icon ?? undefined
     });
