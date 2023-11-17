@@ -10,17 +10,13 @@ export default defineConfig({
 		}
 	},
 	define: {
-		// 'process.env.NODE_ENV': process.env.NODE_ENV === 'production'
-		// 	? '"production"'
-		// 	: '"development"',
+		'process.env.NODE_ENV': '"production"',
 		'process.env.TZ': '"Asia/Seoul"'
 	},
 	plugins: [
 		sveltekit(),
 		SvelteKitPWA({
-			mode: process.env.NODE_ENV === 'production'
-				? 'production'
-				: 'development',
+			mode: 'production',
 			strategies: "injectManifest",
 			scope: "/",
 			injectRegister: 'script',

@@ -1,11 +1,11 @@
-/// <reference types="@sveltejs/kit" />
+/// <reference lib="webworker" />
+/// <reference types="vite/client" />
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext" />
-/// <reference lib="webworker" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
-import {PushMessage} from "$lib/push/PushMessage";
-import {pushMessagesDb} from "$lib/component/messages/messagesDb";
+import {PushMessage} from "./lib/push/PushMessage";
+import {pushMessagesDb} from "./lib/component/messages/messagesDb";
 
 declare let self: ServiceWorkerGlobalScope
 
@@ -20,7 +20,7 @@ precacheAndRoute(self.__WB_MANIFEST)
 // clean old assets
 cleanupOutdatedCaches()
 
-let allowlist;
+let allowlist: undefined | RegExp[]
 if (import.meta.env.DEV)
     allowlist = [/^\/$/]
 
