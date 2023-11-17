@@ -17,11 +17,11 @@ export default defineConfig({
 	plugins: [
 		sveltekit(),
 		SvelteKitPWA({
-			srcDir: "./src",
+			srcDir: "src",
 			// mode: process.env.PUBLIC_ENV === "dev" ? "development" : "production",
 			mode: "development",
 			strategies: "injectManifest",
-			filename: "custom-sw.ts",
+			filename: "custom-sw.js",
 			scope: "/",
 			base: "/",
 			manifest: {

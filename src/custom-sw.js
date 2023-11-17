@@ -1,26 +1,26 @@
-/// <reference lib="webworker" />
-/// <reference types="vite/client" />
+/// <reference types="@sveltejs/kit" />
 /// <reference no-default-lib="true"/>
 /// <reference lib="esnext" />
+/// <reference lib="webworker" />
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
 import { NavigationRoute, registerRoute } from 'workbox-routing'
 import {PushMessage} from "./lib/push/PushMessage";
 import {pushMessagesDb} from "./lib/component/messages/messagesDb";
 
-declare let self: ServiceWorkerGlobalScope
+const sw = /** @type {ServiceWorkerGlobalScope} */ (/** @type {unknown} */ (self));
 
-self.addEventListener('message', (event) => {
+sw.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING')
-        self.skipWaiting()
+        sw.skipWaiting()
 })
 
 // self.__WB_MANIFEST is default injection point
-precacheAndRoute(self.__WB_MANIFEST)
+precacheAndRoute(sw.__WB_MANIFEST)
 
 // clean old assets
 cleanupOutdatedCaches()
 
-let allowlist: undefined | RegExp[]
+let allowlist;
 if (import.meta.env.DEV)
     allowlist = [/^\/$/]
 
@@ -30,7 +30,7 @@ registerRoute(new NavigationRoute(
     { allowlist },
 ))
 
-self.addEventListener('push', (e) => {
+sw.addEventListener('push', (e) => {
     e.waitUntil(resolveNotification(e))
 })
 
@@ -45,7 +45,7 @@ self.addEventListener('push', (e) => {
  * */
 const resolveNotification = (ev: PushEvent) => {
     const pushMessage = new PushMessage(ev.data.text())
-    self.registration.showNotification(pushMessage.title, {
+    sw.registration.showNotification(pushMessage.title, {
         body: pushMessage.body,
         icon: pushMessage.icon ?? undefined
     });

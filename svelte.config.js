@@ -22,7 +22,7 @@ const config = {
 		},
 		files: {
 			// you don't need to do this if you're using generateSW strategy in your app
-			serviceWorker: 'src/custom-sw.ts',
+			serviceWorker: 'src/custom-sw.js',
 		}
 	}
 };
