@@ -21,7 +21,7 @@ export default defineConfig({
 			// mode: process.env.PUBLIC_ENV === "dev" ? "development" : "production",
 			mode: "development",
 			strategies: "injectManifest",
-			filename: "custom-sw.js",
+			filename: "service-worker.js",
 			scope: "/",
 			base: "/",
 			manifest: {
