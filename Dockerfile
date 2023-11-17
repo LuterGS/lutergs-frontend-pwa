@@ -1,14 +1,15 @@
 FROM node:20 AS builder
 
+ENV NODE_ENV=production
+
 # move files to docker builder
 RUN mkdir /lutergs-frontend-pwa
 COPY . /lutergs-frontend-pwa
 
 # build docker image
 WORKDIR /lutergs-frontend-pwa
-RUN npm install && \
-    export NODE_ENV=production && \
-    npm run build
+RUN npm install
+RUN npm run build
 
 FROM node:20
 
