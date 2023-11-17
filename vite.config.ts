@@ -2,6 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 
+/** @type {import('vite').UserConfig} */
 export default defineConfig({
 	server: {
 		fs: {
@@ -10,14 +11,18 @@ export default defineConfig({
 		}
 	},
 	define: {
-		'process.env.NODE_ENV': process.env.PUBLIC_ENV === 'dev' ? '"development"' : '"production"',
+		'process.env.NODE_ENV': process.env.NODE_ENV === 'production'
+			? '"production"'
+			: '"development"',
 		'process.env.TZ': '"Asia/Seoul"'
 	},
 	plugins: [
 		sveltekit(),
 		SvelteKitPWA({
 			srcDir: "src",
-			mode: process.env.PUBLIC_ENV === "dev" ? "development" : "production",
+			mode: process.env.NODE_ENV === 'production'
+				? 'production'
+				: 'development',
 			strategies: "injectManifest",
 			filename: "service-worker.js",
 			scope: "/",
