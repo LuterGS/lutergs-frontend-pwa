@@ -1,5 +1,7 @@
 FROM node:20 AS builder
 
+ARG BACKEND_SERVER
+ARG PUSH_KEY
 ENV NODE_ENV=production
 
 # move files to docker builder
@@ -8,9 +10,11 @@ COPY . /lutergs-frontend-pwa
 
 # build docker image
 WORKDIR /lutergs-frontend-pwa
-RUN npm cache clean --force
-RUN npm install
-RUN npm run build
+RUN echo "PUBLIC_BACKEND_SERVER=$BACKEND_SERVER" > /lutergs-frontend-pwa/.env && \
+    echo "PUBLIC_PUSH_KEY=$PUSH_KEY" >> /lutergs-frontend-pwa/.env && \
+    npm cache clean --force && \
+    npm install && \
+    npm run build
 
 FROM node:20
 

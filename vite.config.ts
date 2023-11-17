@@ -1,8 +1,7 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vitest/config';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
+import { defineConfig } from 'vitest/config';
 
-/** @type {import('vite').UserConfig} */
 export default defineConfig({
 	server: {
 		fs: {
