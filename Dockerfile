@@ -8,8 +8,8 @@ COPY . /lutergs-frontend-pwa
 
 # build docker image
 WORKDIR /lutergs-frontend-pwa
-RUN npm install
-RUN npm run build
+RUN /usr/local/bin/npm install
+RUN /usr/local/bin/npm run build
 
 FROM node:20
 
