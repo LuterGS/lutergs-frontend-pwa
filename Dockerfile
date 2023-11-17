@@ -12,10 +12,10 @@ COPY . /lutergs-frontend-pwa
 WORKDIR /lutergs-frontend-pwa
 RUN echo "PUBLIC_BACKEND_SERVER=$BACKEND_SERVER" > /lutergs-frontend-pwa/.env && \
     echo "PUBLIC_PUSH_KEY=$PUSH_KEY" >> /lutergs-frontend-pwa/.env && \
-    export NODE_ENV=production && \
-    npm install && \
-    npm install -D @vite-pwa/sveltekit && \
-    npm run build
+    echo "PUBLIC_ENV=dev" >> /lutergs-frontend-pwa/.env && \
+    export NODE_ENV=production
+RUN npm install
+RUN npm run build
 
 FROM node:20
 
