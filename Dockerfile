@@ -18,11 +18,12 @@ RUN npm run build
 
 FROM node:20
 
-WORKDIR /
-COPY --from=builder /lutergs-frontend-pwa/package.json package.json
-COPY --from=builder /lutergs-frontend-pwa/package-lock.json package-lock.json
-COPY --from=builder /lutergs-frontend-pwa/build build
+RUN mkdir -p /app
+WORKDIR /app
+COPY --from=builder /lutergs-frontend-pwa/package.json /app/package.json
+COPY --from=builder /lutergs-frontend-pwa/package-lock.json /app/package-lock.json
+COPY --from=builder /lutergs-frontend-pwa/build /app/build
+COPY ./run.sh /app/run.sh
 
-RUN npm ci --omit dev
-ENTRYPOINT ["node", "build"]
+ENTRYPOINT ["/bin/sh", "/app/run.sh"]
 
