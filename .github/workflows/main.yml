@@ -48,8 +48,8 @@ jobs:
             ${{ steps.login-to-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY_NAME }}:${{ github.sha }}
             ${{ steps.login-to-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY_NAME }}:latest
           build-args: |
-            "BACKEND_SERVER = ${{ secrets.BACKEND_SERVER }}"
-            "PUSH_KEY = ${{ secrets.PUSH_KEY }}"
+            "BACKEND_SERVER=${{ secrets.BACKEND_SERVER }}"
+            "PUSH_KEY=${{ secrets.PUSH_KEY }}"
             
 
       - name: install kubectl
