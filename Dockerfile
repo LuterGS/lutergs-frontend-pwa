@@ -3,6 +3,9 @@ FROM node:20 AS builder
 ARG BACKEND_SERVER
 ARG PUSH_KEY
 
+ENV PUBLIC_BACKEND_SERVER=$BACKEND_SERVER
+ENV PUBLIC_PUSH_KEY=$PUSH_KEY
+
 # move files to docker builder
 RUN mkdir /lutergs-frontend-pwa
 COPY . /lutergs-frontend-pwa
