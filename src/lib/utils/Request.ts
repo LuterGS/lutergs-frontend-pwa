@@ -1,8 +1,17 @@
 export const advFetch = async(input: RequestInfo | URL, init?: RequestInit) => {
     const result = await fetch(input, init);
     if (result.status >= 200 && result.status < 300) {
-        const body = await result.json();
-        return new ReqResult(false, null, body);
+        return result.text()
+            .then(async text => {
+                if (text == null || text == "") {
+                    return null;
+                } else {
+                    return await result.json()
+                }
+            })
+            .then(jsonOrNull => {
+                return new ReqResult(false, null, jsonOrNull)
+            })
     } else {
         let body;
         try {

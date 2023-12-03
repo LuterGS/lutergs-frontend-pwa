@@ -1,28 +1,31 @@
 import {writable} from "svelte/store";
+import {convertArrayBufferToString} from "$lib/utils/utilfunc";
 
 export class PushInfo {
-    readonly auth: ArrayBuffer | "" | null
-    constructor(auth: ArrayBuffer | "" | null) {
+    readonly endpoint: string
+    private readonly auth: ArrayBuffer | "" | null
+    constructor(endpoint: string, auth: ArrayBuffer | "" | null) {
+        this.endpoint = endpoint;
         this.auth = auth;
     }
 
-    authString() {
-        return btoa(String.fromCharCode.apply(null, new Uint8Array(this.auth)))
+    getAuth(): string {
+        return btoa(convertArrayBufferToString(this.auth))
     }
 }
 
-const PushAuthStore = () => {
-    const { subscribe, set } = writable(new PushInfo(null))
+const PushEndpointStore = () => {
+    const { subscribe, set } = writable(new PushInfo("", null))
 
     return {
         subscribe,
-        set: (auth: ArrayBuffer | "" | null) => {
-            set(new PushInfo(auth))
+        set: (endpoint: string, auth: ArrayBuffer | "" | null) => {
+            set(new PushInfo(endpoint, auth))
         }
     }
 }
 
-export const pushAuthStore = PushAuthStore();
+export const pushEndpointStore = PushEndpointStore();
 
 const PushGrantedStore = () => {
     const { subscribe, set } = writable("default")

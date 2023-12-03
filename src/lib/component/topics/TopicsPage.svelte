@@ -17,28 +17,26 @@
     import {Check, CheckCircled} from "radix-icons-svelte";
     import ClickablePaper from "$lib/ui/ClickablePaper.svelte";
     import {liveQuery} from "dexie";
-    import {type Topic, topicListDb, TopicStatus, TopicType} from "$lib/component/topics/topicsDb";
-    import {pushAuthStore, pushGrantedStore} from "$lib/push/PushStore";
+    import {type Topic, topicListDb, TopicStatus} from "$lib/component/topics/topicsDb";
+    import {pushEndpointStore, pushGrantedStore} from "$lib/push/PushStore";
 
 
     // about notification permission
     const requestPermission = () => {
         pushGrantedStore.set(Notification.requestPermission())
     }
-    const badgeCssMap = new Map<string, any>();
+    const badgeCssMap = new Map<string, {color: string, text: string}>();
     badgeCssMap.set("granted", {color: "blue", text: "GRANTED"})
     badgeCssMap.set("default", {color: "green", text: "DEFAULT"})
     badgeCssMap.set("denied", {color: "red", text: "DENIED"})
     badgeCssMap.set("fallback", {color: "gray", text: "UNKNOWN"})
-    const getCssOfBadge = (value: string) => {
+    const getCssOfBadge = (value: string): {color: string, text: string} => {
         return badgeCssMap.get(value) ? badgeCssMap.get(value) : badgeCssMap.get("fallback")
     }
-    let cssBadge;
+    let cssBadge: {color: string, text: string};
     pushGrantedStore.subscribe(value => {
         cssBadge = getCssOfBadge(value);
     })
-
-
 
     interface ViewTopics extends Topic {
         processing: boolean;
@@ -48,7 +46,7 @@
         () => topicListDb.topic.toArray()
     )
     // about topic list
-    pushAuthStore.subscribe(pushInfo => {
+    pushEndpointStore.subscribe(pushInfo => {
         topicListDb.updateSubscribedTopics().then(() => {
             topicListDb.topic.toArray().then(subs => {
                 allTopics = subs.map(sub => {
@@ -57,16 +55,9 @@
                         name: sub.name,
                         description: sub.description,
                         isSubscribed: sub.isSubscribed,
-                        type: sub.type,
                         processing: false
                     }
-                }).sort((a, b) => {
-                    if (a.type === b.type) {
-                        return a.name < b.name ? 1 : -1
-                    } else {
-                        return a.type > b.type ? 1 : -1
-                    }
-                })
+                }).sort((a, b) => a.name < b.name ? 1 : -1)
             })
         })
     })
@@ -77,17 +68,10 @@
                 name: sub.name,
                 description: sub.description,
                 isSubscribed: sub.isSubscribed,
-                type: sub.type,
                 processing: false
             }
             return res;
-        }).sort((a, b) => {
-            if (a.type === b.type) {
-                return a.name < b.name ? 1 : -1
-            } else {
-                return a.type > b.type ? 1 : -1
-            }
-        })
+        }).sort((a, b) => a.name < b.name ? 1 : -1)
     })
     $: {
         allTopics = allTopics
@@ -191,51 +175,46 @@
                     </Group>
                 {/if}
             </ClickablePaper>
-            {#each allTopics as subscription}
-                <Paper override={{padding: "0.5rem", backgroundColor: subscription.type === TopicType.FIXED ? "#F1F1F1" : "white"}}>
+            {#each allTopics as topic}
+                <Paper override={{padding: "0.5rem", backgroundColor: "white"}}>
                     <Flex justify="space-between">
                         <Stack spacing="sm">
                             <Group position="left">
-                                <Text weight={"bold"}>{subscription.name}</Text>
-                                {#if subscription.isSubscribed === TopicStatus.SUBSCRIBED}
+                                <Text weight={"bold"}>{topic.name}</Text>
+                                {#if topic.isSubscribed === TopicStatus.SUBSCRIBED}
                                     <ThemeIcon variant="white" radius="xs" size="xs">
                                         <CheckCircled />
                                     </ThemeIcon>
                                 {/if}
                             </Group>
-                            <Text>{subscription.description}</Text>
+                            <Text>{topic.description}</Text>
                         </Stack>
                         <Center>
-                            {#if subscription.type === TopicType.UNSUBSCRIBABLE}
-                                {#if subscription.isSubscribed === TopicStatus.SUBSCRIBED}
-                                    <Button disabled={subscription.processing} override={unsubscribeButtonCss}>
-                                        {#if subscription.processing === true}
-                                            <Loader color="gray" size="sm"/>
-                                        {:else}
-                                            <Text color="#C13538" align="center" size="sm"
-                                                  on:click={() => {unsubscribe(subscription.uuid)}}>구독 취소</Text>
-                                        {/if}
-                                    </Button>
-                                {:else if subscription.isSubscribed === TopicStatus.UNSUBSCRIBED}
-                                    <Button disabled={subscription.processing} override={subscribeButtonCss}>
-                                        {#if subscription.processing === true}
-                                            <Loader color="gray" size="sm"/>
-                                        {:else}
-                                            <Text color="#4F5867" align="center" size="sm"
-                                                  on:click={() => {subscribe(subscription.uuid)}}>구독</Text>
-                                        {/if}
-                                    </Button>
-                                {:else}
-                                    <Button disabled={true} override={subscribeButtonCss}>
-                                        <Text color="#4F5867" align="center" size="sm">권한 필요</Text>
-                                    </Button>
-                                {/if}
-                            {:else if subscription.type === TopicType.FIXED}
-                                <!-- 별도 UI 없음 -->
-                            {:else}
-                                <!-- TODO: ERROR 나 FIXED 일 경우 UI 를 바꿔야 함 -->
+                            {#if topic.isSubscribed === TopicStatus.SUBSCRIBED}
+                                <Button disabled={topic.processing} override={unsubscribeButtonCss}>
+                                    {#if topic.processing === true}
+                                        <Loader color="gray" size="sm"/>
+                                    {:else}
+                                        <Text color="#C13538" align="center" size="sm"
+                                              on:click={() => {unsubscribe(topic.uuid)}}>구독 취소</Text>
+                                    {/if}
+                                </Button>
+                            {:else if topic.isSubscribed === TopicStatus.UNSUBSCRIBED}
+                                <Button disabled={topic.processing} override={subscribeButtonCss}>
+                                    {#if topic.processing === true}
+                                        <Loader color="gray" size="sm"/>
+                                    {:else}
+                                        <Text color="#4F5867" align="center" size="sm"
+                                              on:click={() => {subscribe(topic.uuid)}}>구독</Text>
+                                    {/if}
+                                </Button>
+                            {:else if cssBadge.text === "denied" || cssBadge.text === "fallback"}
                                 <Button disabled={true} override={subscribeButtonCss}>
-                                    <Text color="#4F5867" align="center" size="sm">에러 발생!</Text>
+                                    <Text color="#4F5867" align="center" size="sm">권한 필요</Text>
+                                </Button>
+                            {:else}
+                                <Button disabled={true} override={subscribeButtonCss}>
+                                    <Text color="#4F5867" align="center" size="sm">ERROR</Text>
                                 </Button>
                             {/if}
                         </Center>
