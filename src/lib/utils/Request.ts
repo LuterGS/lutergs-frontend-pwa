@@ -2,11 +2,11 @@ export const advFetch = async(input: RequestInfo | URL, init?: RequestInit) => {
     const result = await fetch(input, init);
     if (result.status >= 200 && result.status < 300) {
         return result.text()
-            .then(async text => {
+            .then(text => {
                 if (text == null || text == "") {
                     return null;
                 } else {
-                    return await result.json()
+                    return JSON.parse(text)
                 }
             })
             .then(jsonOrNull => {
